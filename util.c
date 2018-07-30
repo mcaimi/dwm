@@ -6,6 +6,8 @@
 
 #include "util.h"
 
+#include <X11/Xresource.h>
+
 void *
 ecalloc(size_t nmemb, size_t size)
 {
@@ -33,3 +35,4 @@ die(const char *fmt, ...) {
 
 	exit(1);
 }
+

@@ -36,11 +36,13 @@
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
 
+#include <string.h>
 #include "drw.h"
 #include "util.h"
 
@@ -241,6 +243,10 @@ static void xinitvisual();
 static void zoom(const Arg *arg);
 static void bstack(Monitor *m);
 static void bstackhoriz(Monitor *m);
+
+/* xresources */
+void setup_xresources(void);
+int xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, void *target);
 
 /* variables */
 static const char broken[] = "broken";
@@ -2247,6 +2253,7 @@ main(int argc, char *argv[])
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("dwm: cannot open display");
 	checkotherwm();
+  setup_xresources();
 	setup();
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
@@ -2319,4 +2326,67 @@ bstackhoriz(Monitor *m) {
 				ty += HEIGHT(c);
 		}
 	}
+}
+
+int
+xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, void *target) {
+  // build scoped resource name
+  // all valid resources start with the "dwm." prefix
+  char scoped_resource[256];
+  bzero(scoped_resource, sizeof(scoped_resource));
+  snprintf(scoped_resource, sizeof(scoped_resource), "%s.%s", "dwm", resource_name);
+  
+  // XrmResource placeholder
+  XrmValue resource_value;
+
+  // holders for typed returns
+  char *res_type;
+  char **string_resource_type = (char **)(&target);
+  int *integer_resource_type = target;
+  float *float_resource_type = target;
+
+  // load resource from the resources database...
+  XrmGetResource(db, scoped_resource, scoped_resource, &res_type, &resource_value);
+  if (ISNULL(resource_value.addr)) {
+    return 1;
+  }
+
+  // convert returned value
+  switch (type) {
+    case STRING:
+      printf(resource_value.addr);
+      *string_resource_type = resource_value.addr;
+      printf(*string_resource_type);
+      break;
+    case INTEGER:
+      *integer_resource_type = strtoul(resource_value.addr, NULL, 10);
+      break;
+    case FLOAT:
+      *float_resource_type = strtof(resource_value.addr, NULL);
+      break;
+  }
+
+  return 0;
+}
+
+void
+setup_xresources(void) {
+  XrmDatabase db;
+  char *resource_manager;
+
+  // initialize Xresources Manager
+  XrmInitialize();
+  // get pointer to the display resource manager
+  resource_manager = XResourceManagerString(dpy);
+  if (!resource_manager) {
+    return;
+  }
+
+  // get the database
+  db = XrmGetStringDatabase(resource_manager);
+
+  // load resources from database
+  for (int index = 0; index < resource_inventory_size; index++) {
+    xresource_load(db, configurable_resources[index].xrdb_entry, configurable_resources[index].type, configurable_resources[index].target);
+  }
 }

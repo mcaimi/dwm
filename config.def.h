@@ -1,15 +1,16 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 2;        /* border pixel of windows */
-static const unsigned int gappx     = 1;        /* gap pixel between windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static unsigned int borderpx  = 2;        /* border pixel of windows */
+static unsigned int gappx     = 1;        /* gap pixel between windows */
+static unsigned int snap      = 32;       /* snap pixel */
 
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static int showbar            = 1;        /* 0 means no bar */
+static int topbar             = 1;        /* 0 means bottom bar */
 
-static const char *fonts[]          = { "Iosevka Term Medium:size=12" };
-static const char dmenufont[]       = "Iosevka Term Medium:size=11";
+static char interfacefont[]         = "Iosevka Term Medium:size=12";
+static char *fonts[]                = { interfacefont };
+static char dmenufont[]             = "Iosevka Term Medium:size=11";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -58,7 +59,7 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -134,4 +135,16 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
+
+/* configurable Xresources */
+ResourceAtom configurable_resources[] = {
+  { "interfacefont", STRING, &interfacefont[0] },
+  { "dmenufont", STRING, &dmenufont[0] },
+  { "gappx", INTEGER, &gappx },
+  { "topbar", INTEGER, &topbar },
+  { "showbar", INTEGER, &showbar },
+  { "borderpx", INTEGER, &borderpx },
+};
+
+unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);
 
