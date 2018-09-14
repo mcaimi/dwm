@@ -8,9 +8,11 @@ static unsigned int snap      = 32;       /* snap pixel */
 static int showbar            = 1;        /* 0 means no bar */
 static int topbar             = 1;        /* 0 means bottom bar */
 
-static char interfacefont[]         = "Iosevka Term Medium:size=12";
-static char *fonts[]                = { interfacefont };
-static char dmenufont[]             = "Iosevka Term Medium:size=11";
+static char *interfacefont          = NULL;
+static char *dmenufont              = NULL;
+static char defaultfont[]           = "Iosevka Term Medium:size=12";
+static char dmenufont_default[]     = "Iosevka Term Medium:size=11";
+static char *fonts[]                = { defaultfont };
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -71,7 +73,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont_default, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
@@ -138,8 +140,8 @@ static Button buttons[] = {
 
 /* configurable Xresources */
 ResourceAtom configurable_resources[] = {
-  { "interfacefont", STRING, &interfacefont[0] },
-  { "dmenufont", STRING, &dmenufont[0] },
+  { "interfacefont", STRING, &interfacefont },
+  { "dmenufont", STRING, &dmenufont },
   { "gappx", INTEGER, &gappx },
   { "topbar", INTEGER, &topbar },
   { "showbar", INTEGER, &showbar },

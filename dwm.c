@@ -2254,6 +2254,15 @@ main(int argc, char *argv[])
 		die("dwm: cannot open display");
 	checkotherwm();
   setup_xresources();
+
+  // update interface font 
+  if ISNOTNULL(interfacefont) {
+    fonts[0] = interfacefont;
+  }
+  // update dmenu font
+  if ISNOTNULL(dmenufont) {
+    dmenucmd[4] = dmenufont;
+  }
 	setup();
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
@@ -2341,7 +2350,7 @@ xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, vo
 
   // holders for typed returns
   char *res_type;
-  char **string_resource_type = (char **)(&target);
+  char **string_resource_type = target;
   int *integer_resource_type = target;
   float *float_resource_type = target;
 
@@ -2354,9 +2363,7 @@ xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, vo
   // convert returned value
   switch (type) {
     case STRING:
-      printf(resource_value.addr);
       *string_resource_type = resource_value.addr;
-      printf(*string_resource_type);
       break;
     case INTEGER:
       *integer_resource_type = strtoul(resource_value.addr, NULL, 10);
@@ -2389,4 +2396,5 @@ setup_xresources(void) {
   for (int index = 0; index < resource_inventory_size; index++) {
     xresource_load(db, configurable_resources[index].xrdb_entry, configurable_resources[index].type, configurable_resources[index].target);
   }
+  fprintf(stderr,"interfacefont: %s dmenufont %s\n", interfacefont, dmenufont);
 }

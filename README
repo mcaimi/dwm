@@ -3,7 +3,7 @@ dwm - dynamic window manager
 dwm is an extremely fast, small, and dynamic window manager for X.
 
 This fork incorporates some of the patches published on suckless.org
-and in the future some other custom functions may be added.
+and in the future some other custom features may be added.
 
 Currently applied patches:
 
@@ -12,6 +12,7 @@ Currently applied patches:
   3. cfacts
   4. bottomstack
   5. gaps
+  6. support for some tweaks via Xresources
 
 Requirements
 ------------
