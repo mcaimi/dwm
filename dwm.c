@@ -214,6 +214,7 @@ static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
+static void flip_topbar(const Arg *arg);
 static void tile(Monitor *);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -1715,6 +1716,29 @@ tagmon(const Arg *arg)
   if (!selmon->sel || !mons->next)
     return;
   sendmon(selmon->sel, dirtomon(arg->i));
+}
+
+void
+flip_topbar(const Arg *arg)
+{
+  // invert the value: top->bottom and vice-versa
+  topbar = !topbar;
+  // update monitor properties
+  Monitor *this = mons;
+  while (this != NULL) {
+    // flip bar position
+    this->topbar = topbar;
+
+    // update monitor struct
+    updatebarpos(this);
+
+    //next
+    this = this->next;
+  }
+
+  // redraw bars
+  updatebars();
+  return;
 }
 
 void
