@@ -1721,23 +1721,14 @@ tagmon(const Arg *arg)
 void
 flip_topbar(const Arg *arg)
 {
-  // invert the value: top->bottom and vice-versa
-  topbar = !topbar;
-  // update monitor properties
-  Monitor *this = mons;
-  while (this != NULL) {
-    // flip bar position
-    this->topbar = topbar;
+  // update selected monitor properties
+  selmon->topbar = !selmon->topbar;
+  updatebarpos(selmon);
+  XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
 
-    // update monitor struct
-    updatebarpos(this);
+  // arrange monitor
+  arrange(selmon);
 
-    //next
-    this = this->next;
-  }
-
-  // redraw bars
-  updatebars();
   return;
 }
 

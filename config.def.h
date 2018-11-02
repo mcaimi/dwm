@@ -6,7 +6,7 @@ static unsigned int gappx     = 1;        /* gap pixel between windows */
 static unsigned int snap      = 32;       /* snap pixel */
 
 static int showbar            = 1;        /* 0 means no bar */
-static int topbar             = 1;        /* 0 means bottom bar */
+static int topbar       = 1;        /* 0 means bottom bar */
 
 static char *interfacefont          = NULL;
 static char *dmenufont              = NULL;
@@ -61,7 +61,7 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod4Mask
+#define MODKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \
   { MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
   { MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -109,10 +109,7 @@ static Key keys[] = {
   { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
   { MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-<<<<<<< Updated upstream
-=======
   { MODKEY|ControlMask,           XK_comma,  flip_topbar,    {0} },
->>>>>>> Stashed changes
   TAGKEYS(                        XK_1,                      0)
   TAGKEYS(                        XK_2,                      1)
   TAGKEYS(                        XK_3,                      2)
