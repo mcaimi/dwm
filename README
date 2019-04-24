@@ -13,6 +13,7 @@ Currently applied patches:
   4. bottomstack
   5. gaps
   6. support for some tweaks via Xresources
+  7. systray support
 
 Requirements
 ------------

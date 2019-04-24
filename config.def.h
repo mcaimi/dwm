@@ -1,9 +1,14 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static unsigned int borderpx  = 2;        /* border pixel of windows */
+static unsigned int borderpx  = 1;        /* border pixel of windows */
 static unsigned int gappx     = 1;        /* gap pixel between windows */
 static unsigned int snap      = 32;       /* snap pixel */
+
+static unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
+static unsigned int systrayspacing = 2;   /* systray spacing */
+static int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
+static int showsystray        = 1;     /* 0 means no systray */
 
 static int showbar            = 1;        /* 0 means no bar */
 static int topbar       = 1;        /* 0 means bottom bar */
@@ -147,6 +152,10 @@ ResourceAtom configurable_resources[] = {
   { "topbar", INTEGER, &topbar },
   { "showbar", INTEGER, &showbar },
   { "borderpx", INTEGER, &borderpx },
+  { "systraypinning", INTEGER, &systraypinning },
+  { "systrayspacing", INTEGER, &systrayspacing },
+  { "systraypinningfailfirst", INTEGER, &systraypinningfailfirst },
+  { "showsystray", INTEGER, &showsystray },
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);

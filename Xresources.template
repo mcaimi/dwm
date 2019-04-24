@@ -9,3 +9,11 @@ dwm.bar_position: 0
 dwm.showbar: 1
 ! border pixels
 dwm.borderpx: 2
+! show systray 1 yes, 0 no
+dwm.showsystray: 1
+! systray pinning fail behaviour: 1 = first monitor, 0 = last monitor
+dwm.systraypinningfailfirst: 1
+! systray pinning: 0 follows current monitor, >0 pin to monitor X
+dwm.systraypinning: 0
+! systray spacing in pixels
+dwm.systrayspacing: 2
