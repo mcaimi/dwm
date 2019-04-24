@@ -131,6 +131,7 @@ struct Monitor {
   unsigned int tagset[2];
   int showbar;
   int topbar;
+  unsigned int gappx;
   Client *clients;
   Client *sel;
   Client *stack;
@@ -286,6 +287,7 @@ static void xinitvisual();
 static void zoom(const Arg *arg);
 static void bstack(Monitor *m);
 static void bstackhoriz(Monitor *m);
+static void updategaps(const Arg *arg);
 
 /* xresources */
 void setup_xresources(void);
@@ -754,6 +756,7 @@ createmon(void)
   m->nmaster = nmaster;
   m->showbar = showbar;
   m->topbar = topbar;
+  m->gappx = gappx; // initial gaps pixels settings, read from xresources
   m->lt[0] = &layouts[0];
   m->lt[1] = &layouts[1 % LENGTH(layouts)];
   strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
@@ -1900,19 +1903,19 @@ tile(Monitor *m)
     return;
 
   if (n > m->nmaster)
-    mw = m->nmaster ? (m->ww - (g = gappx)) * m->mfact : 0;
+    mw = m->nmaster ? (m->ww - (g = m->gappx)) * m->mfact : 0;
   else
     mw = m->ww;
   for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
     if (i < m->nmaster) {
       r = MIN(n, m->nmaster) - i;
-      h = (m->wh - my - gappx * (r - 1)) / r;
+      h = (m->wh - my - m->gappx * (r - 1)) / r;
       resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-      my += HEIGHT(c) + gappx;
+      my += HEIGHT(c) + m->gappx;
       mfacts -= c->cfact;
     } else {
       r = n - i;
-      h = (m->wh - ty - gappx * (r - 1)) / r;
+      h = (m->wh - ty - m->gappx * (r - 1)) / r;
       resize(c, m->wx + mw + g, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), False);
       sfacts -= c->cfact;
     }
@@ -2779,3 +2782,12 @@ systraytomon(Monitor *m) {
   return t;
 }
 
+void
+updategaps(const Arg *arg) {
+  // update gaps settings for the current selected monitor, or reset to default value
+  ((arg->i == 0) || ((selmon->gappx + arg->i) < gappx)) ? (selmon->gappx = gappx) : (selmon->gappx += arg->i);
+
+  printf("%d\n", selmon->gappx);
+  // arrange windows
+  arrange(selmon);
+}
