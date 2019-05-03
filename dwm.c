@@ -54,8 +54,8 @@
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
-#define WIDTH(X)                ((X)->w + 2 * (X)->bw)
-#define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
+#define WIDTH(X)                ((X)->w + 2 * (X)->bw + gappx)
+#define HEIGHT(X)               ((X)->h + 2 * (X)->bw + gappx)
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
@@ -97,7 +97,7 @@ struct Client {
   int x, y, w, h;
   int oldx, oldy, oldw, oldh;
   int basew, baseh, incw, inch, maxw, maxh, minw, minh;
-  int bw, oldbw;
+  int bw, oldbw; // border width
   unsigned int tags;
   int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
   Client *next;
@@ -200,6 +200,7 @@ static void buttonpress(XEvent *e);
 static void checkotherwm(void);
 static void cleanup(void);
 static void cleanupmon(Monitor *mon);
+static unsigned int countclients(Monitor *mon);
 static void clientmessage(XEvent *e);
 static void configure(Client *c);
 static void configurenotify(XEvent *e);
@@ -581,6 +582,19 @@ cleanupmon(Monitor *mon)
   XUnmapWindow(dpy, mon->barwin);
   XDestroyWindow(dpy, mon->barwin);
   free(mon);
+}
+
+unsigned int
+countclients(Monitor *mon)
+{
+  unsigned int client_number = 0;
+  Client *nextclient = NULL;
+
+  // count how many client in specified monitor
+  for (nextclient = nexttiled(mon->clients); nextclient; nextclient = nexttiled(nextclient->next), client_number++ );
+
+  // return value
+  return client_number;
 }
 
 void
@@ -1433,20 +1447,38 @@ recttomon(int x, int y, int w, int h)
 void
 resize(Client *c, int x, int y, int w, int h, int interact)
 {
-  if (applysizehints(c, &x, &y, &w, &h, interact))
-    resizeclient(c, x, y, w, h);
+  if (applysizehints(c, &x, &y, &w, &h, interact)) resizeclient(c, x, y, w, h);
 }
 
 void
 resizeclient(Client *c, int x, int y, int w, int h)
 {
   XWindowChanges wc;
-
-  c->oldx = c->x; c->x = wc.x = x;
-  c->oldy = c->y; c->y = wc.y = y;
-  c->oldw = c->w; c->w = wc.width = w;
-  c->oldh = c->h; c->h = wc.height = h;
+  unsigned int client_num = 0;
+  unsigned int offset = 0;
+  unsigned int gapwidth = 0;
   wc.border_width = c->bw;
+
+  // get the current number of client in the selected monitor
+  client_num = countclients(selmon);
+
+  // do not apply gaps to floating clients
+  if ( ! (c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) ) {
+    // do nothing if there is only one client on the screen
+    if ( client_num == 1 || selmon->lt[selmon->sellt]->arrange == monocle ) {
+      offset = 0; gapwidth = -2 * borderpx;
+      wc.border_width = 0;
+    } else {
+      gapwidth = 2 * selmon->gappx; offset = selmon->gappx;
+    }
+  }
+
+  // apply border gaps to client window and recenter window
+  c->oldx = c->x; c->x = wc.x = (x + offset);
+  c->oldy = c->y; c->y = wc.y = (y + offset);
+  c->oldw = c->w; c->w = wc.width = (w - gapwidth);
+  c->oldh = c->h; c->h = wc.height = (h - gapwidth);
+
   XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
   configure(c);
   XSync(dpy, False);
@@ -1889,7 +1921,7 @@ flip_topbar(const Arg *arg)
 void
 tile(Monitor *m)
 {
-  unsigned int i, n, h, r, g = 0, mw, my, ty;
+  unsigned int i, n, h, mw, my, ty;
   float mfacts = 0, sfacts = 0;
   Client *c;
 
@@ -1903,20 +1935,20 @@ tile(Monitor *m)
     return;
 
   if (n > m->nmaster)
-    mw = m->nmaster ? (m->ww - (g = m->gappx)) * m->mfact : 0;
+    mw = m->nmaster ? (m->ww) * m->mfact : 0;
   else
     mw = m->ww;
+
   for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
     if (i < m->nmaster) {
-      r = MIN(n, m->nmaster) - i;
-      h = (m->wh - my - m->gappx * (r - 1)) / r;
+      h = (m->wh - my) * (c->cfact / mfacts);
       resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-      my += HEIGHT(c) + m->gappx;
+      my += HEIGHT(c);
       mfacts -= c->cfact;
     } else {
-      r = n - i;
-      h = (m->wh - ty - m->gappx * (r - 1)) / r;
-      resize(c, m->wx + mw + g, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), False);
+      h = (m->wh - ty) * (c->cfact / sfacts);
+      resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), False);
+      ty += HEIGHT(c);
       sfacts -= c->cfact;
     }
 }
@@ -2449,7 +2481,7 @@ main(int argc, char *argv[])
   checkotherwm();
   setup_xresources();
 
-  // update interface font 
+  // update interface font
   if ISNOTNULL(interfacefont) {
     fonts[0] = interfacefont;
   }
@@ -2538,7 +2570,7 @@ xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, vo
   char scoped_resource[256];
   bzero(scoped_resource, sizeof(scoped_resource));
   snprintf(scoped_resource, sizeof(scoped_resource), "%s.%s", "dwm", resource_name);
-  
+
   // XrmResource placeholder
   XrmValue resource_value;
 
@@ -2787,7 +2819,6 @@ updategaps(const Arg *arg) {
   // update gaps settings for the current selected monitor, or reset to default value
   ((arg->i == 0) || ((selmon->gappx + arg->i) < gappx)) ? (selmon->gappx = gappx) : (selmon->gappx += arg->i);
 
-  printf("%d\n", selmon->gappx);
   // arrange windows
   arrange(selmon);
 }
