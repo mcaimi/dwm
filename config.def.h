@@ -27,6 +27,9 @@ static const char col_cyan[]        = "#005577";
 static const unsigned int baralpha = 0xd0;
 static const unsigned int borderalpha = OPAQUE;
 
+// center the current window name in the top bar
+static unsigned int centerwindowname = 0;
+
 static const char *colors[][3]      = {
   /*               fg         bg         border   */
   [SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -159,6 +162,7 @@ ResourceAtom configurable_resources[] = {
   { "systrayspacing", INTEGER, &systrayspacing },
   { "systraypinningfailfirst", INTEGER, &systraypinningfailfirst },
   { "showsystray", INTEGER, &showsystray },
+  { "centerwindowname", INTEGER, &centerwindowname },
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);
