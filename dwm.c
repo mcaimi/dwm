@@ -2116,7 +2116,7 @@ updatebars(void)
     w = m->ww;
     if (showsystray && m == systraytomon(m))
       w -= getsystraywidth();
-    m->barwin = XCreateWindow(dpy, root, m->wx, m->by, w, bh, 0, DefaultDepth(dpy, screen),
+    m->barwin = XCreateWindow(dpy, root, m->wx, m->by, w, bh, 0, depth,
                               InputOutput, visual,
                               CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
     XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
