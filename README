@@ -14,6 +14,7 @@ Added features so far:
   5. window gaps, with centered windows
   6. support for some tweaks via Xresources (see template)
   7. X11 systray support
+  8. Misc fixes and tweaks
 
 
 Requirements
