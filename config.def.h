@@ -13,6 +13,9 @@ static int showsystray        = 1;     /* 0 means no systray */
 static int showbar            = 1;        /* 0 means no bar */
 static int topbar       = 1;        /* 0 means bottom bar */
 
+static int corner_radius = 0;   /* window corners radius */
+static int round_windows = 0;   /* 0 == round only floating windows, 1 == round only fullscreen windows, 2 == round all windows */
+
 static char *interfacefont          = NULL;
 static char *dmenufont              = NULL;
 static char defaultfont[]           = "Iosevka Term Medium:size=12";
@@ -163,6 +166,8 @@ ResourceAtom configurable_resources[] = {
   { "systraypinningfailfirst", INTEGER, &systraypinningfailfirst },
   { "showsystray", INTEGER, &showsystray },
   { "centerwindowname", INTEGER, &centerwindowname },
+  { "corner_radius", INTEGER, &corner_radius },
+  { "round_windows", INTEGER, &round_windows },
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);

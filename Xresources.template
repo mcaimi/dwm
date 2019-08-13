@@ -19,3 +19,7 @@ dwm.systraypinning: 0
 dwm.systrayspacing: 2
 ! center the window name in the top bar
 dwm.centerwindowname: 0
+! rounded window corner radius
+dwm.corner_radius: 0
+! round windows mode 0: only floating, 1: only fullscreen, 2: all windows
+dwm.round_windows: 0
