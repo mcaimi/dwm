@@ -15,6 +15,9 @@ Added features so far:
   6. support for some tweaks via Xresources (see template)
   7. X11 systray support
   8. Misc fixes and tweaks
+  9. Draw windows with rounded corners
+  10. Better workspaces bar handling (inspired by i3)
+  11. Movable top bar
 
 
 Requirements
