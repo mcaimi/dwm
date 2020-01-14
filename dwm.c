@@ -519,7 +519,6 @@ buttonpress(XEvent *e)
       if (!(TAGACTIVE(activetags, i) || HASTAG(m, i))) continue;
       x += TEXTW(tags[i]);
     } while (ev->x >= x && ++i < LENGTH(tags));
-    printf("x: %d, blw: %d\n", x, blw);
 
     if (i < LENGTH(tags) && TAGACTIVE(activetags, i)) {
       click = ClkTagBar;
