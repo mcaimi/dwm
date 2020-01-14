@@ -54,13 +54,16 @@
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
-#define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw + gappx)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw + gappx)
-#define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
+
+#define TAGMASK                       ((1 << LENGTH(tags)) - 1)
+#define TAGACTIVE(CLIENT_TAGS, TAG)   (CLIENT_TAGS & (1 << TAG))
+#define HASTAG(MONITOR,TAG)           (MONITOR->tagset[MONITOR->seltags] & (1 << TAG))
+#define ISVISIBLE(CLIENT)             ((CLIENT->tags & CLIENT->mon->tagset[CLIENT->mon->seltags]))
 
 #define OPAQUE                  0xffU
 
@@ -492,6 +495,7 @@ void
 buttonpress(XEvent *e)
 {
   unsigned int i, x, click;
+  unsigned int activetags = 0;
   Arg arg = {0};
   Client *c;
   Monitor *m;
@@ -506,10 +510,18 @@ buttonpress(XEvent *e)
   }
   if (ev->window == selmon->barwin) {
     i = x = 0;
-    do
+
+    // skip drawing tags without active clients attached
+    for (c = m->clients; c; c = c->next) {
+      activetags |= c->tags;
+    }
+    do {
+      if (!(TAGACTIVE(activetags, i) || HASTAG(m, i))) continue;
       x += TEXTW(tags[i]);
-    while (ev->x >= x && ++i < LENGTH(tags));
-    if (i < LENGTH(tags)) {
+    } while (ev->x >= x && ++i < LENGTH(tags));
+    printf("x: %d, blw: %d\n", x, blw);
+
+    if (i < LENGTH(tags) && TAGACTIVE(activetags, i)) {
       click = ClkTagBar;
       arg.ui = 1 << i;
     } else if (ev->x < x + blw)
@@ -524,6 +536,7 @@ buttonpress(XEvent *e)
     XAllowEvents(dpy, ReplayPointer, CurrentTime);
     click = ClkClientWin;
   }
+
   for (i = 0; i < LENGTH(buttons); i++)
     if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
     && CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
@@ -857,22 +870,29 @@ drawbar(Monitor *m)
   }
 
   resizebarwin(m);
+
   for (c = m->clients; c; c = c->next) {
     occ |= c->tags;
     if (c->isurgent)
       urg |= c->tags;
   }
+
   x = 0;
   for (i = 0; i < LENGTH(tags); i++) {
+    if (!(TAGACTIVE(occ, i) || HASTAG(m, i))) continue;
+
     w = TEXTW(tags[i]);
     drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
     drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
-    if (occ & 1 << i)
-      drw_rect(drw, x + boxw, 0, w - (2*boxw) + 1, boxw/2,
-        m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-        urg & 1 << i);
+
+    if (TAGACTIVE(occ, i) && HASTAG(m, i))
+      drw_rect(drw, x + boxw, 0, w - (2*boxw) + 1, boxw/2, 
+        m == selmon && selmon->sel && selmon->sel->tags & (1 << i),
+        urg & (1 << i));
+
     x += w;
   }
+
   w = blw = TEXTW(m->ltsymbol);
   drw_setscheme(drw, scheme[SchemeNorm]);
   x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
