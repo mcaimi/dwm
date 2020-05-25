@@ -2544,66 +2544,88 @@ main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-static void
-bstack(Monitor *m) {
-  int w, h, mh, mx, tx, ty, tw;
-  unsigned int i, n;
+void
+bstack(Monitor *m)
+{
+  unsigned int i, n, w, mh, mx, tx;
+  float mfacts = 0, sfacts = 0;
   Client *c;
 
-  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+    if (n < m->nmaster)
+      mfacts += c->cfact;
+    else
+      sfacts += c->cfact;
+  }
   if (n == 0)
     return;
-  if (n > m->nmaster) {
-    mh = m->nmaster ? m->mfact * m->wh : 0;
-    tw = m->ww / (n - m->nmaster);
-    ty = m->wy + mh;
-  } else {
+  if(n == 1){
+    c = nexttiled(m->clients);
+    resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
+    return;
+  }
+
+  if (n > m->nmaster)
+    mh = m->nmaster ? m->wh * m->mfact : 0;
+  else
     mh = m->wh;
-    tw = m->ww;
-    ty = m->wy;
-  }
-  for (i = mx = 0, tx = m->wx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
+  for (i = 0, mx = tx = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
     if (i < m->nmaster) {
-      w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
-      resize(c, m->wx + mx, m->wy, w - (2 * c->bw), mh - (2 * c->bw), 0);
-      mx += WIDTH(c);
+      w = (m->ww - mx) * (c->cfact / mfacts);
+      resize(c, m->wx + mx, m->wy, w - (2*c->bw), mh - 2*c->bw, 0);
+      if(mx + WIDTH(c) < m->mw)
+        mx += WIDTH(c);
+      mfacts -= c->cfact;
     } else {
-      h = m->wh - mh;
-      resize(c, tx, ty, tw - (2 * c->bw), h - (2 * c->bw), 0);
-      if (tw != m->ww)
+      w = (m->ww - tx) * (c->cfact / sfacts);
+      resize(c, m->wx + tx, m->wy + mh, w - (2*c->bw), m->wh - mh - 2*(c->bw), 0);
+      if(tx + WIDTH(c) < m->mw)
         tx += WIDTH(c);
+      sfacts -= c->cfact;
     }
-  }
 }
 
-static void
-bstackhoriz(Monitor *m) {
-  int w, mh, mx, tx, ty, th;
-  unsigned int i, n;
+void
+bstackhoriz(Monitor *m)
+{
+  unsigned int i, n, h, mw, mh, my, ty;
+  float mfacts = 0, sfacts = 0;
   Client *c;
 
-  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+    if (n < m->nmaster)
+      mfacts += c->cfact;
+    else
+      sfacts += c->cfact;
+  }
   if (n == 0)
     return;
-  if (n > m->nmaster) {
-    mh = m->nmaster ? m->mfact * m->wh : 0;
-    th = (m->wh - mh) / (n - m->nmaster);
-    ty = m->wy + mh;
-  } else {
-    th = mh = m->wh;
-    ty = m->wy;
+  if(n == 1){
+    c = nexttiled(m->clients);
+    resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
+    return;
   }
-  for (i = mx = 0, tx = m->wx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
+
+  if (n > m->nmaster)
+    mh = m->nmaster ? m->wh * m->mfact : 0;
+  else
+    mh = m->wh;
+  mw = m->ww;
+
+  for (i = ty = 0, my = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
     if (i < m->nmaster) {
-      w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
-      resize(c, m->wx + mx, m->wy, w - (2 * c->bw), mh - (2 * c->bw), 0);
-      mx += WIDTH(c);
+      h = (mh - my) * (c->cfact / mfacts);
+      resize(c, m->wx, m->wy + my, mw - 2*c->bw, h - 2*c->bw, 0);
+      if(my + HEIGHT(c) < m->mh)
+        my += HEIGHT(c);
+      mfacts -= c->cfact;
     } else {
-      resize(c, tx, ty, m->ww - (2 * c->bw), th - (2 * c->bw), 0);
-      if (th != m->wh)
+      h = (m->wh - mh - ty) * (c->cfact / sfacts);
+      resize(c, m->wx, m->wy + mh + ty, mw - 2*c->bw, h - (2*c->bw), 0);
+      if(ty + HEIGHT(c) < m->mh)
         ty += HEIGHT(c);
+      sfacts -= c->cfact;
     }
-  }
 }
 
 int
