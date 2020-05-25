@@ -18,6 +18,9 @@ Added features so far:
   9. Draw windows with rounded corners
   10. Better workspaces bar handling (inspired by i3)
   11. Movable top bar
+  12. CenteredMaster + CFacts
+  13. EWMH Tags
+  14. Spiral/Dwindle Layouts
 
 
 Requirements
