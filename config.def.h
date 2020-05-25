@@ -71,6 +71,9 @@ static const Layout layouts[] = {
   { "===",      bstackhoriz },
   { "|M|",      centeredmaster},
   { ">M>",      centeredfloatingmaster},
+  { "(@)",      spiral},
+  { "><",         dwindle},
+  { NULL, NULL},
 };
 
 /* key definitions */
@@ -116,6 +119,7 @@ static Key keys[] = {
   { MODKEY,                       XK_n,      setlayout,      {.v = &layouts[4]} },
   { MODKEY,                       XK_c,      setlayout,      {.v = &layouts[5]} },
   { MODKEY,                       XK_v,      setlayout,      {.v = &layouts[6]} },
+  { MODKEY|ControlMask,           XK_plus,   cyclelayout,    {0} },
   { MODKEY,                       XK_space,  setlayout,      {0} },
   { MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
@@ -175,4 +179,5 @@ ResourceAtom configurable_resources[] = {
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);
+unsigned int number_of_layouts = sizeof(layouts)/sizeof(layouts[0]);
 
