@@ -31,6 +31,8 @@ systraytomon(Monitor *m) {
 void
 updatesystray(void)
 {
+  if (custombar) return;
+
   XSetWindowAttributes wa;
   XWindowChanges wc;
   Client *i;
@@ -44,7 +46,7 @@ updatesystray(void)
     /* init systray */
     if (!(systray = (Systray *)calloc(1, sizeof(Systray))))
       die("fatal: could not malloc() %u bytes\n", sizeof(Systray));
-    systray->win = XCreateSimpleWindow(dpy, root, x, m->by, w, bh, 0, 0, scheme[SchemeSel][ColBg].pixel);
+    systray->win = XCreateSimpleWindow(dpy, root, x, m->by, w, m->bh, 0, 0, scheme[SchemeSel][ColBg].pixel);
     wa.event_mask        = ButtonPressMask | ExposureMask;
     wa.override_redirect = True;
     wa.background_pixel  = scheme[SchemeNorm][ColBg].pixel;
@@ -79,34 +81,41 @@ updatesystray(void)
   }
   w = w ? w + systrayspacing : 1;
   x -= w;
-  XMoveResizeWindow(dpy, systray->win, x, m->by, w, bh);
-  wc.x = x; wc.y = m->by; wc.width = w; wc.height = bh;
+  XMoveResizeWindow(dpy, systray->win, x, m->by, w, m->bh);
+  wc.x = x; wc.y = m->by; wc.width = w; wc.height = m->bh;
   wc.stack_mode = Above; wc.sibling = m->barwin;
   XConfigureWindow(dpy, systray->win, CWX|CWY|CWWidth|CWHeight|CWSibling|CWStackMode, &wc);
   XMapWindow(dpy, systray->win);
   XMapSubwindows(dpy, systray->win);
+
+  // add systray class and name: this allows for direct reference from picom and other X compositors and tools
+  XClassHint ch = {"systray", "systray"};
+  XSetClassHint(dpy, systray->win, &ch);
   XSync(dpy, False);
 }
 
 void
 updatesystrayicongeom(Client *i, int w, int h)
 {
+  if (custombar) return;
+  Monitor *m = i->mon;
+
   if (i) {
-    i->h = bh;
+    i->h = m->bh;
     if (w == h)
-      i->w = bh;
-    else if (h == bh)
+      i->w = m->bh;
+    else if (h == m->bh)
       i->w = w;
     else
-      i->w = (int) ((float)bh * ((float)w / (float)h));
+      i->w = (int) ((float)m->bh * ((float)w / (float)h));
     applysizehints(i, &(i->x), &(i->y), &(i->w), &(i->h), False);
     /* force icons into the systray dimenons if they don't want to */
-    if (i->h > bh) {
+    if (i->h > m->bh) {
       if (i->w == i->h)
-        i->w = bh;
+        i->w = m->bh;
       else
-        i->w = (int) ((float)bh * ((float)i->w / (float)i->h));
-      i->h = bh;
+        i->w = (int) ((float)m->bh * ((float)i->w / (float)i->h));
+      i->h = m->bh;
     }
   }
 }
@@ -114,6 +123,8 @@ updatesystrayicongeom(Client *i, int w, int h)
 void
 updatesystrayiconstate(Client *i, XPropertyEvent *ev)
 {
+  if (custombar) return; 
+
   long flags;
   int code = 0;
 
@@ -143,6 +154,8 @@ Client *
 wintosystrayicon(Window w) {
   Client *i = NULL;
 
+  if (custombar) return NULL;
+
   if (!showsystray || !w)
     return i;
   for (i = systray->icons; i && i->win != w; i = i->next) ;
@@ -152,6 +165,8 @@ wintosystrayicon(Window w) {
 unsigned int
 getsystraywidth()
 {
+  if (custombar) return 0;
+
   unsigned int w = 0;
   Client *i;
   if(showsystray)
