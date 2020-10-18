@@ -116,7 +116,7 @@ struct Monitor {
   float mfact;
   int nmaster;
   int num;
-  int by;               /* bar geometry */
+  int by, bh;           /* bar geometry */
   int mx, my, mw, mh;   /* screen size */
   int wx, wy, ww, wh;   /* window area  */
   unsigned int seltags;
@@ -296,10 +296,6 @@ static void zoom(const Arg *arg);
 /* F10 - gaps */
 static void updategaps(const Arg *arg);
 
-/* F11 - animation */
-static void toggleanimation(const Arg*);
-static void resize_animate(Client *c, int x, int y, int w, int h, int interact);
-
 /* variables */
 static Systray *systray =  NULL;
 static const char broken[] = "broken";
@@ -377,9 +373,6 @@ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
 /* F10 - gaps */
 #include "components/gaps.c"
-
-/* F11 - animation */
-#include "components/animation.c"
 
 void
 attach(Client *c)
@@ -693,6 +686,7 @@ createmon(void)
   m->nmaster = nmaster;
   m->showbar = showbar;
   m->topbar = topbar;
+  m->bh = bh;
   m->gappx = gappx; // initial gaps pixels settings, read from xresources
   m->lt[0] = &layouts[0];
   m->lt[1] = &layouts[1 % LENGTH(layouts)];

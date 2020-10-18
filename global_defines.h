@@ -18,6 +18,7 @@
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw + gappx)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw + gappx)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
+#define TEXTCLAMP(m,x,t)        ((TEXTW(t) > ((m)->ww - x)) ? (lrpad/2) : ((m)->ww - TEXTW(t))/2 - x)
 
 #define TAGMASK                       ((1 << LENGTH(tags)) - 1)
 #define TAGSLENGTH                    (LENGTH(tags))
