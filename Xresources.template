@@ -23,3 +23,5 @@ dwm.centerwindowname: 0
 dwm.corner_radius: 0
 ! round windows mode 0: only floating, 1: only fullscreen, 2: all windows
 dwm.round_windows: 0
+! set dwm bar height. 0 means default value
+dwm.bar_height: 0
