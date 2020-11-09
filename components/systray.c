@@ -31,8 +31,6 @@ systraytomon(Monitor *m) {
 void
 updatesystray(void)
 {
-  if (custombar) return;
-
   XSetWindowAttributes wa;
   XWindowChanges wc;
   Client *i;
@@ -97,7 +95,6 @@ updatesystray(void)
 void
 updatesystrayicongeom(Client *i, int w, int h)
 {
-  if (custombar) return;
   Monitor *m = i->mon;
 
   if (i) {
@@ -123,8 +120,6 @@ updatesystrayicongeom(Client *i, int w, int h)
 void
 updatesystrayiconstate(Client *i, XPropertyEvent *ev)
 {
-  if (custombar) return; 
-
   long flags;
   int code = 0;
 
@@ -154,8 +149,6 @@ Client *
 wintosystrayicon(Window w) {
   Client *i = NULL;
 
-  if (custombar) return NULL;
-
   if (!showsystray || !w)
     return i;
   for (i = systray->icons; i && i->win != w; i = i->next) ;
@@ -165,8 +158,6 @@ wintosystrayicon(Window w) {
 unsigned int
 getsystraywidth()
 {
-  if (custombar) return 0;
-
   unsigned int w = 0;
   Client *i;
   if(showsystray)

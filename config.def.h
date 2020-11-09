@@ -10,13 +10,10 @@ static unsigned int systrayspacing = 2;   /* systray spacing */
 static int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
 static int showsystray        = 1;     /* 0 means no systray */
 
+// dwm bar height
+static unsigned int bar_height = 0; /* 0 means default height */
 static int showbar      = 1;        /* 0 means no bar */
 static int topbar       = 1;        /* 0 means bottom bar */
-static int custombar    = 0;        /* 0 means keep running dwm stock bar, 1 means use a custom bar, see custombat_class property */
-static char *custombar_name = NULL; /* X11 WM_NAME string value of the custom bar, for example "polybar" */
-static char *custombar_class = NULL; /* X11 WM_CLASS string value of the custom bar, for example "Polybar" */
-static char *custombar_command = NULL; /* custom bar startup command */
-static int custombar_height = 0;    /* custom bar height in pixels */
 
 static int corner_radius = 0;   /* window corners radius */
 static int round_windows = 0;   /* 0 == round only floating windows, 1 == round only fullscreen windows, 2 == round all windows */
@@ -181,11 +178,7 @@ ResourceAtom configurable_resources[] = {
   { "centerwindowname", INTEGER, &centerwindowname },
   { "corner_radius", INTEGER, &corner_radius },
   { "round_windows", INTEGER, &round_windows },
-  { "custombar", INTEGER, &custombar },
-  { "custombar_height", INTEGER, &custombar_height },
-  { "custombar_class", STRING, &custombar_class },
-  { "custombar_name", STRING, &custombar_name },
-  { "custombar_command", STRING, &custombar_command },
+  { "bar_height", INTEGER, &bar_height },
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);
