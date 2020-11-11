@@ -3,3 +3,4 @@ PKGBUILD
 dwm.desktop
 *.o
 config.h
+config.dist
