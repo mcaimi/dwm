@@ -38,6 +38,8 @@
 #include <X11/Xutil.h>
 #include <X11/Xresource.h>
 #include <X11/Xft/Xft.h>
+#include <pango/pango.h>
+#include <pango/pangoxft.h>
 
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
@@ -299,7 +301,7 @@ static void updategaps(const Arg *arg);
 /* variables */
 static Systray *systray =  NULL;
 static const char broken[] = "broken";
-static char stext[256];
+static char stext[512];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
@@ -422,7 +424,7 @@ buttonpress(XEvent *e)
       arg.ui = 1 << i;
     } else if (ev->x < x + blw)
       click = ClkLtSymbol;
-    else if (ev->x > selmon->ww - TEXTW(stext) - getsystraywidth())
+    else if (ev->x > selmon->ww - TEXTWM(stext) - getsystraywidth())
       click = ClkStatusText;
     else
       click = ClkWinTitle;
@@ -1545,10 +1547,10 @@ setup(void)
   root = RootWindow(dpy, screen);
   xinitvisual();
   drw = drw_create(dpy, screen, root, sw, sh, visual, depth, cmap);
-  if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
-    die("no fonts could be loaded.");
-  lrpad = drw->fonts->h;
-  bh = (bar_height == 0) ? drw->fonts->h + 2: bar_height;
+  if (!drw_font_create(drw, font))
+    die("dwm: no fonts could be loaded.");
+  lrpad = drw->font->h;
+  bh = (bar_height == 0) ? drw->font->h + 2: bar_height;
   updategeom();
   /* init atoms */
   utf8string = XInternAtom(dpy, "UTF8_STRING", False);
@@ -2161,8 +2163,9 @@ main(int argc, char *argv[])
 
   // update interface font
   if ISNOTNULL(interfacefont) {
-    fonts[0] = interfacefont;
-  }
+    printf("dwm: loading %s as interface font with pango\n", interfacefont);
+    font = interfacefont;
+  } else printf("dwm: pango fallback to font %s\n", font);
   // update dmenu font
   if ISNOTNULL(dmenufont) {
     dmenucmd[4] = dmenufont;

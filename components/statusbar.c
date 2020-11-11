@@ -11,8 +11,8 @@ void
 drawbar(Monitor *m)
 {
   int x, w, tw = 0, stw = 0;
-  int boxs = drw->fonts->h / 9;
-  int boxw = drw->fonts->h / 6 + 2;
+  int boxs = drw->font->h / 9;
+  int boxw = drw->font->h / 6 + 2;
   unsigned int i, occ = 0, urg = 0, middle;
   Client *c;
 
@@ -22,8 +22,8 @@ drawbar(Monitor *m)
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
     drw_setscheme(drw, scheme[SchemeNorm]);
-    tw = TEXTW(stext) - lrpad / 2 + 2; /* 2px right padding */
-    drw_text(drw, m->ww - tw - stw, 0, tw, bh, lrpad / 2 - 2, stext, 0);
+    tw = TEXTWM(stext) - lrpad / 2 + 2; /* 2px right padding */
+    drw_text(drw, m->ww - tw - stw, 0, tw, bh, lrpad / 2 - 2, stext, 0, True);
   }
 
   resizebarwin(m);
@@ -40,7 +40,7 @@ drawbar(Monitor *m)
 
     w = TEXTW(tags[i]);
     drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
-    drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
+    drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i, False);
 
     if (TAGACTIVE(occ, i) && HASTAG(m, i))
       drw_rect(drw, x + boxw, 0, w - (2*boxw) + 1, boxw/2, 
@@ -52,7 +52,7 @@ drawbar(Monitor *m)
 
   w = blw = TEXTW(m->ltsymbol);
   drw_setscheme(drw, scheme[SchemeNorm]);
-  x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
+  x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0, False);
 
   if ((w = m->ww - tw - stw - x) > bh) {
     if (m->sel) {
@@ -60,8 +60,8 @@ drawbar(Monitor *m)
 
       if (centerwindowname) {
         middle = TEXTCLAMP(m, x, m->sel->name);
-        drw_text(drw, x, 0, w, bh, middle, m->sel->name, 0);
-      } else drw_text(drw, x, 0, w, bh, lrpad/2, m->sel->name, 0);
+        drw_text(drw, x, 0, w, bh, middle, m->sel->name, 0, False);
+      } else drw_text(drw, x, 0, w, bh, lrpad/2, m->sel->name, 0, False);
 
       if (m->sel->isfloating)
         drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);

@@ -27,8 +27,8 @@ FREETYPEINC = /usr/include/freetype2
 endif
 
 # includes and libs
-INCS = -I${X11INC} -I${FREETYPEINC}
-LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${XSHAPELIBS} ${FREETYPELIBS} -lXrender
+INCS = -I${X11INC} -I${FREETYPEINC} `pkg-config --cflags xft pango pangoxft`
+LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${XSHAPELIBS} ${FREETYPELIBS} -lXrender `pkg-config --libs xft pango pangoxft`
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS} ${XSHAPEFLAGS}

@@ -20,9 +20,9 @@ static int round_windows = 0;   /* 0 == round only floating windows, 1 == round 
 
 static char *interfacefont          = NULL;
 static char *dmenufont              = NULL;
-static char defaultfont[]           = "Iosevka Term Medium:size=12";
+static char defaultfont[]           = "Iosevka Term Medium 12";
 static char dmenufont_default[]     = "Iosevka Term Medium:size=11";
-static char *fonts[]                = { defaultfont };
+static char *font                   = defaultfont;
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
