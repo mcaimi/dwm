@@ -94,7 +94,7 @@ struct Client {
   int basew, baseh, incw, inch, maxw, maxh, minw, minh;
   int bw, oldbw; // border width
   unsigned int tags;
-  int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
+  int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, centered;
   Client *next;
   Client *snext;
   Monitor *mon;
@@ -139,6 +139,7 @@ typedef struct {
   const char *class;
   const char *instance;
   const char *title;
+  int centered;
   unsigned int tags;
   int isfloating;
   int monitor;
@@ -1050,6 +1051,10 @@ manage(Window w, XWindowAttributes *wa)
   updatewindowtype(c);
   updatesizehints(c);
   updatewmhints(c);
+  if (c->centered) {
+    c->x = c->mon->mx + (c->mon->mw - WIDTH(c))/2;
+    c->y = c->mon->my + (c->mon->mh - HEIGHT(c))/2;
+  }
   XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
   grabbuttons(c, 0);
   if (!c->isfloating)
@@ -1996,8 +2001,10 @@ updatewindowtype(Client *c)
 
   if (state == netatom[NetWMFullscreen])
     setfullscreen(c, 1);
-  if (wtype == netatom[NetWMWindowTypeDialog])
+  if (wtype == netatom[NetWMWindowTypeDialog]) {
     c->isfloating = True;
+    c->centered = True;
+  }
 }
 
 void
