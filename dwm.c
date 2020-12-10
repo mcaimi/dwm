@@ -654,9 +654,9 @@ configurerequest(XEvent *e)
         c->oldh = c->h;
         c->h = ev->height;
       }
-      if ((c->x + c->w) > m->mx + m->mw && c->isfloating)
+      if (((c->x + c->w) > m->mx + m->mw) && c->isfloating)
         c->x = m->mx + (m->mw / 2 - WIDTH(c) / 2); /* center in x direction */
-      if ((c->y + c->h) > m->my + m->mh && c->isfloating)
+      if (((c->y + c->h) > m->my + m->mh) && c->isfloating)
         c->y = m->my + (m->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
       if ((ev->value_mask & (CWX|CWY)) && !(ev->value_mask & (CWWidth|CWHeight)))
         configure(c);
@@ -1035,6 +1035,7 @@ manage(Window w, XWindowAttributes *wa)
     && (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
   c->bw = borderpx;
 
+  selmon->tagset[selmon->seltags] &= ~scratchtag;
   if (!strcmp(c->name, scratchpadname)) {
     c->mon->tagset[c->mon->seltags] |= c->tags = scratchtag;
     c->isfloating = True;
@@ -1664,6 +1665,7 @@ spawn(const Arg *arg)
 {
   if (arg->v == dmenucmd)
     dmenumon[0] = '0' + selmon->num;
+  selmon->tagset[selmon->seltags] &= ~scratchtag;
   if (fork() == 0) {
     if (dpy)
       close(ConnectionNumber(dpy));
@@ -2036,10 +2038,11 @@ wintoclient(Window w)
   Client *c;
   Monitor *m;
 
-  for (m = mons; m; m = m->next)
-    for (c = m->clients; c; c = c->next)
-      if (c->win == w)
-        return c;
+  for (m = mons; m; m = m->next) {
+    for (c = m->clients; c; c = c->next) {
+      if (c->win == w) return c;
+    }
+  }
   return NULL;
 }
 
