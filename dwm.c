@@ -1512,7 +1512,7 @@ setfullscreen(Client *c, int fullscreen)
     c->oldstate = c->isfloating;
     c->oldbw = c->bw;
     c->bw = 0;
-    c->isfloating = 1;
+    c->isfloating = True;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     XRaiseWindow(dpy, c->win);
   } else if (!fullscreen && c->isfullscreen){
@@ -1995,7 +1995,7 @@ updatewindowtype(Client *c)
   if (state == netatom[NetWMFullscreen])
     setfullscreen(c, 1);
   if (wtype == netatom[NetWMWindowTypeDialog])
-    c->isfloating = 1;
+    c->isfloating = True;
 }
 
 void
