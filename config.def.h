@@ -18,6 +18,8 @@ static int topbar       = 1;        /* 0 means bottom bar */
 static int corner_radius = 0;   /* window corners radius */
 static int round_windows = 0;   /* 0 == round only floating windows, 1 == round only fullscreen windows, 2 == round all windows */
 
+static int lockfullscreen = 1;
+
 static char *interfacefont          = NULL;
 static char *dmenufont              = NULL;
 static char defaultfont[]           = "Iosevka Term Medium 12";
@@ -179,6 +181,7 @@ ResourceAtom configurable_resources[] = {
   { "corner_radius", INTEGER, &corner_radius },
   { "round_windows", INTEGER, &round_windows },
   { "bar_height", INTEGER, &bar_height },
+  { "lockfullscreen", INTEGER, &lockfullscreen },
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);
