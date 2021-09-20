@@ -1283,8 +1283,8 @@ resizeclient(Client *c, int x, int y, int w, int h)
 {
   XWindowChanges wc;
   unsigned int client_num = 0;
-  unsigned int offset = 0;
-  unsigned int gapwidth = 0;
+  unsigned int yoffset = 0, xoffset = 0;
+  unsigned int ygapwidth = 0, xgapwidth = 0;
   wc.border_width = c->bw;
 
   // get the current number of client in the selected monitor
@@ -1294,18 +1294,19 @@ resizeclient(Client *c, int x, int y, int w, int h)
   if ( ! (c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) ) {
     // do nothing if there is only one client on the screen
     if ( client_num == 1 || selmon->lt[selmon->sellt]->arrange == monocle ) {
-      offset = 0; gapwidth = -2 * borderpx;
+      yoffset = bar_win_spacing; xoffset = 0;
+      ygapwidth = (-2 * borderpx) + bar_win_spacing; xgapwidth = -2 * borderpx;
       wc.border_width = 0;
     } else {
-      gapwidth = 2 * selmon->gappx; offset = selmon->gappx;
+      ygapwidth = xgapwidth = 2 * selmon->gappx; yoffset = xoffset = selmon->gappx;
     }
   }
 
   // apply border gaps to client window and recenter window
-  c->oldx = c->x; c->x = wc.x = (x + offset);
-  c->oldy = c->y; c->y = wc.y = (y + offset);
-  c->oldw = c->w; c->w = wc.width = (w - gapwidth);
-  c->oldh = c->h; c->h = wc.height = (h - gapwidth);
+  c->oldx = c->x; c->x = wc.x = (x + xoffset);
+  c->oldy = c->y; c->y = wc.y = (y + yoffset);
+  c->oldw = c->w; c->w = wc.width = (w - xgapwidth);
+  c->oldh = c->h; c->h = wc.height = (h - ygapwidth);
 
   XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
   configure(c);
@@ -1556,7 +1557,7 @@ setup(void)
   if (!drw_font_create(drw, font))
     die("dwm: no fonts could be loaded.");
   lrpad = drw->font->h;
-  bh = (bar_height == 0) ? drw->font->h + 2: bar_height;
+  bh = ((bar_height == 0) ? drw->font->h + 2: bar_height);
   updategeom();
   /* init atoms */
   utf8string = XInternAtom(dpy, "UTF8_STRING", False);

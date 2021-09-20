@@ -19,6 +19,7 @@ static int corner_radius = 0;   /* window corners radius */
 static int round_windows = 0;   /* 0 == round only floating windows, 1 == round only fullscreen windows, 2 == round all windows */
 
 static int lockfullscreen = 1;
+static unsigned int bar_win_spacing = 0; // spacing between the status bar and window frames
 
 static char *interfacefont          = NULL;
 static char *dmenufont              = NULL;
@@ -182,6 +183,7 @@ ResourceAtom configurable_resources[] = {
   { "round_windows", INTEGER, &round_windows },
   { "bar_height", INTEGER, &bar_height },
   { "lockfullscreen", INTEGER, &lockfullscreen },
+  { "bar_win_spacing", INTEGER, &bar_win_spacing },
 };
 
 unsigned int resource_inventory_size = sizeof(configurable_resources)/sizeof(configurable_resources[0]);
