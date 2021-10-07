@@ -199,8 +199,10 @@ static void setcfact(const Arg *arg);
 static void setmfact(const Arg *arg);
 
 /* F7 - xresources */
-void setup_xresources(void);
+char *setup_xresources(void);
+void update_xresources(char *resource_manager);
 int xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, void *target);
+void xrdbreload(const Arg *arg);
 
 /* F8 - rounded corners */
 unsigned int have_to_round_corners(Client *c);
@@ -2170,7 +2172,10 @@ main(int argc, char *argv[])
   if (!(dpy = XOpenDisplay(NULL)))
     die("dwm: cannot open display");
   checkotherwm();
-  setup_xresources();
+  // Initialize Xresources Manager
+  XrmInitialize();
+  res_manager = setup_xresources();
+  update_xresources(res_manager);
 
   // update interface font
   if ISNOTNULL(interfacefont) {

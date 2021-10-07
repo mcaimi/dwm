@@ -26,11 +26,18 @@ static char *dmenufont              = NULL;
 static char defaultfont[]           = "Iosevka Term Medium 12";
 static char dmenufont_default[]     = "Iosevka Term Medium:size=11";
 static char *font                   = defaultfont;
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+static char normbg[]           = "#222222";
+static char normborder[]       = "#444444";
+static char normfg[]           = "#bbbbbb";
+static char selbg[]            = "#005577";
+static char selborder[]        = "#005577";
+static char selfg[]            = "#eeeeee";
+static char *custom_normbg    = NULL;
+static char *custom_normfg    = NULL;
+static char *custom_normborder    = NULL;
+static char *custom_selbg    = NULL;
+static char *custom_selfg    = NULL;
+static char *custom_selborder    = NULL;
 
 static const unsigned int baralpha = 0xd0;
 static const unsigned int borderalpha = OPAQUE;
@@ -38,12 +45,12 @@ static const unsigned int borderalpha = OPAQUE;
 // center the current window name in the top bar
 static unsigned int centerwindowname = 0;
 
-static const char *colors[][3]      = {
-  /*               fg         bg         border   */
-  [SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-  [SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+static char *colors[][3]      = {
+  /*               fg      bg      border   */
+  [SchemeNorm] = { normfg, normbg, normborder },
+  [SchemeSel]  = { selfg, selbg,  selborder  },
 };
-static const unsigned int alphas[][3]      = {
+static unsigned int alphas[][3]      = {
   /*               fg      bg        border     */
   [SchemeNorm] = { OPAQUE, baralpha, borderalpha },
   [SchemeSel]  = { OPAQUE, baralpha, borderalpha },
@@ -94,7 +101,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont_default, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont_default, "-nb", normbg, "-nf", normfg, "-sb", selbg, "-sf", selfg, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
@@ -137,6 +144,7 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_plus,   updategaps,     {.i = +1 } },
   { MODKEY|ControlMask,           XK_minus,  updategaps,     {.i = 0 } },
   { MODKEY|ControlMask,           XK_comma,  flip_topbar,    {0} },
+  { MODKEY,                       XK_r,     xrdbreload,     {.v = NULL} },
   TAGKEYS(                        XK_1,                      0)
   TAGKEYS(                        XK_2,                      1)
   TAGKEYS(                        XK_3,                      2)
@@ -170,6 +178,12 @@ static Button buttons[] = {
 ResourceAtom configurable_resources[] = {
   { "interfacefont", STRING, &interfacefont },
   { "dmenufont", STRING, &dmenufont },
+  { "normbackground", STRING, &custom_normbg },
+  { "normforeground", STRING, &custom_normfg },
+  { "normborder", STRING, &custom_normborder },
+  { "selbackground", STRING, &custom_selbg },
+  { "selforeground", STRING, &custom_selfg },
+  { "selborder", STRING, &custom_selborder },
   { "gappx", INTEGER, &gappx },
   { "topbar", INTEGER, &topbar },
   { "showbar", INTEGER, &showbar },

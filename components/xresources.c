@@ -1,17 +1,44 @@
 /* F7 - xresources */
 
-void
+#define PATCH_COLOR(S,D)  if(S != NULL)\
+                                  strncpy(D, S, strlen(S))
+
+static char *res_manager = NULL;
+
+char *
 setup_xresources(void) {
-  XrmDatabase db;
   char *resource_manager;
 
-  // initialize Xresources Manager
-  XrmInitialize();
   // get pointer to the display resource manager
   resource_manager = XResourceManagerString(dpy);
   if (!resource_manager) {
-    return;
+    return NULL;
   }
+
+  // return resource manager
+  return resource_manager;
+}
+
+
+void
+refresh_xresources(void) {
+  // Update default colors
+  PATCH_COLOR(custom_normbg, normbg);
+  PATCH_COLOR(custom_normborder, normborder);
+  PATCH_COLOR(custom_normfg, normfg);
+  PATCH_COLOR(custom_selbg, selbg);
+  PATCH_COLOR(custom_selborder, selborder);
+  PATCH_COLOR(custom_selfg, selfg);
+
+  // build color table
+  for (int i=0; i < LENGTH(colors); i++) {
+    scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
+  }
+}
+
+void
+update_xresources(char *resource_manager) {
+  XrmDatabase db;
 
   // get the database
   db = XrmGetStringDatabase(resource_manager);
@@ -20,6 +47,9 @@ setup_xresources(void) {
   for (int index = 0; index < resource_inventory_size; index++) {
     xresource_load(db, configurable_resources[index].xrdb_entry, configurable_resources[index].type, configurable_resources[index].target);
   }
+
+  // refresh
+  refresh_xresources();
 }
 
 int
@@ -59,4 +89,17 @@ xresource_load(XrmDatabase db, char *resource_name, enum xresource_type type, vo
   }
 
   return 0;
+}
+
+void
+xrdbreload(const Arg *arg) {
+  // load resources from xrdb
+  update_xresources(res_manager);
+
+  // refresh xresources
+  refresh_xresources();
+
+  // rearrange
+  focus(NULL);
+  arrange(NULL);
 }
