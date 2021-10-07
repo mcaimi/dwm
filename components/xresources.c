@@ -47,9 +47,6 @@ update_xresources(char *resource_manager) {
   for (int index = 0; index < resource_inventory_size; index++) {
     xresource_load(db, configurable_resources[index].xrdb_entry, configurable_resources[index].type, configurable_resources[index].target);
   }
-
-  // refresh
-  refresh_xresources();
 }
 
 int
