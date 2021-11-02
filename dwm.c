@@ -2175,7 +2175,8 @@ main(int argc, char *argv[])
   // Initialize Xresources Manager
   XrmInitialize();
   res_manager = setup_xresources();
-  update_xresources(res_manager);
+  if (res_manager)
+    update_xresources(res_manager);
 
   // update interface font
   if ISNOTNULL(interfacefont) {
