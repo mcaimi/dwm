@@ -25,6 +25,8 @@ dwm.corner_radius: 0
 dwm.round_windows: 0
 ! set dwm bar height. 0 means default value
 dwm.bar_height: 0
+! space in pixels between the bar and windows
+dwm.bar_win_spacing: 2
 ! normal and selected fg, bg and border colors
 dwm.normbackground: "#222222"
 dwm.normborder: "#444444"
