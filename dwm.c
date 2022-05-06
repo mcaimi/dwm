@@ -1252,8 +1252,7 @@ setmfact(const Arg *arg)
 }
 
 /* F7 - xresources */
-#define PATCH_COLOR(S,D)  if(S != NULL)\
-                                  strncpy(D, S, strlen(S))
+#define PATCH_COLOR(S,D)  if(S != NULL) { strncpy(D, S, strlen(D)); }
 
 static char *res_manager = NULL;
 
@@ -1275,17 +1274,12 @@ setup_xresources(void) {
 void
 refresh_xresources(void) {
   // Update default colors
-  PATCH_COLOR(custom_normbg, normbg);
-  PATCH_COLOR(custom_normborder, normborder);
-  PATCH_COLOR(custom_normfg, normfg);
-  PATCH_COLOR(custom_selbg, selbg);
-  PATCH_COLOR(custom_selborder, selborder);
-  PATCH_COLOR(custom_selfg, selfg);
-
-  // build color table
-  for (int i=0; i < LENGTH(colors); i++) {
-    scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
-  }
+  PATCH_COLOR(custom_normbg, normbg)
+  PATCH_COLOR(custom_normborder, normborder)
+  PATCH_COLOR(custom_normfg, normfg)
+  PATCH_COLOR(custom_selbg, selbg)
+  PATCH_COLOR(custom_selborder, selborder)
+  PATCH_COLOR(custom_selfg, selfg)
 }
 
 void
@@ -1347,6 +1341,11 @@ xrdbreload(const Arg *arg) {
 
   // refresh xresources
   refresh_xresources();
+
+  // build color table
+  for (int i=0; i < LENGTH(colors); i++) {
+    scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
+  }
 
   // rearrange
   focus(NULL);
@@ -3247,8 +3246,10 @@ main(int argc, char *argv[])
   // Initialize Xresources Manager
   XrmInitialize();
   res_manager = setup_xresources();
-  if (res_manager)
+  if (res_manager) {
     update_xresources(res_manager);
+    refresh_xresources();
+  }
 
   // update interface font
   if ISNOTNULL(interfacefont) {
