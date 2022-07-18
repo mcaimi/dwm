@@ -1411,9 +1411,10 @@ void shape_window_round_corners(Client *c) {
   if (!mask) return;
 
   // create a graphic context to draw on
-  XGCValues valuemask;
+  XGCValues values;
+  values.graphics_exposures = 1;
   GC graphic_context;
-  graphic_context = XCreateGC(dpy, mask, 0, &valuemask);
+  graphic_context = XCreateGC(dpy, mask, GCGraphicsExposures, &values);
   // failed to allocate graphic context.
   // clean up mask drawable and return
   if (!graphic_context) {
@@ -1734,8 +1735,10 @@ configurerequest(XEvent *e)
         c->y = m->my + (m->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
       if ((ev->value_mask & (CWX|CWY)) && !(ev->value_mask & (CWWidth|CWHeight)))
         configure(c);
-      if (ISVISIBLE(c))
+      if (ISVISIBLE(c)) {
         XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
+        if (have_to_round_corners(c)) shape_window_round_corners(c);
+      }
     } else
       configure(c);
   } else {
@@ -2383,8 +2386,10 @@ resizeclient(Client *c, int x, int y, int w, int h)
 
   XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
   configure(c);
+
   if (have_to_round_corners(c))
     shape_window_round_corners(c);
+
   XSync(dpy, False);
 }
 
@@ -2443,6 +2448,7 @@ resizemouse(const Arg *arg)
     selmon = m;
     focus(NULL);
   }
+
   if (have_to_round_corners(c))
     shape_window_round_corners(c);
 }
@@ -2479,8 +2485,9 @@ run(void)
   /* main event loop */
   XSync(dpy, False);
   while (running && !XNextEvent(dpy, &ev))
-    if (handler[ev.type])
+    if (handler[ev.type]){
       handler[ev.type](&ev); /* call handler */
+    }
 }
 
 void
@@ -3318,7 +3325,7 @@ void updatecurrentdesktop(void){
   while( *rawdata >> (i+1) ){
     i++;
   }
-  
+
   long data[] = { i };
   XChangeProperty(dpy, root, netatom[NetCurrentDesktop], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
 }
