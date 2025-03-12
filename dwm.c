@@ -2914,7 +2914,7 @@ unmapnotify(XEvent *e)
 }
 
 void
-updateclientlist()
+updateclientlist(void)
 {
   Client *c;
   Monitor *m;
